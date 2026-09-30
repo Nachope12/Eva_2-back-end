@@ -1,0 +1,8 @@
+{# Paginación reutilizable; conserva los filtros aplicados (querystring). #}
+{% if is_paginated %}
+<div class="pag">
+  {% if page_obj.has_previous %}<a href="?{{ querystring }}&page={{ page_obj.previous_page_number }}">« Anterior</a>{% endif %}
+  <span class="mut">Página {{ page_obj.number }} de {{ paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a href="?{{ querystring }}&page={{ page_obj.next_page_number }}">Siguiente »</a>{% endif %}
+</div>
+{% endif %}

@@ -1,0 +1,26 @@
+{% extends "tienda/base.html" %}
+{# Gestión de usuarios y roles: exclusivo del SUPERADMIN. #}
+{% block titulo %}Usuarios · TechHardware{% endblock %}
+{% block contenido %}
+<div class="fila" style="justify-content:space-between;">
+  <h1>Usuarios y roles</h1>
+  <a class="btn ok" href="{% url 'web:usuario_crear' %}">+ Nuevo usuario</a>
+</div>
+<p class="mut">Solo el Super Administrador puede crear usuarios, cambiar roles o eliminar cuentas.</p>
+<table>
+  <tr><th>Usuario</th><th>Email</th><th>Rol</th><th>Activo</th><th></th></tr>
+  {% for u in object_list %}
+  <tr>
+    <td>{{ u.username }}{% if u == request.user %} <span class="mut">(usted)</span>{% endif %}</td>
+    <td class="mut">{{ u.email|default:"—" }}</td>
+    <td><span class="badge" style="background:var(--azul); color:#000;">{{ u.perfil.get_rol_display }}</span></td>
+    <td>{{ u.is_active|yesno:"Sí,No" }}</td>
+    <td class="fila">
+      <a class="btn sec" href="{% url 'web:usuario_editar' u.pk %}">Editar</a>
+      {% if u != request.user %}<a class="btn peli" href="{% url 'web:usuario_eliminar' u.pk %}">Eliminar</a>{% endif %}
+    </td>
+  </tr>
+  {% empty %}<tr><td colspan="5" class="mut">No hay usuarios.</td></tr>{% endfor %}
+</table>
+{% include "tienda/_paginacion.html" %}
+{% endblock %}

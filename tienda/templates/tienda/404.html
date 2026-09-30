@@ -1,0 +1,15 @@
+{% extends "tienda/base.html" %}
+{# Advertencia de error 404: la página o el registro solicitado no existe. #}
+{% block titulo %}Página no encontrada · TechHardware{% endblock %}
+{% block contenido %}
+<div class="card" style="text-align:center; padding:2.5rem 1rem; border-left:6px solid var(--amar);">
+  <div style="font-size:4rem;">⚠️</div>
+  <h1>Error 404</h1>
+  <h2>¡Advertencia! La página que busca no existe</h2>
+  <p class="mut">La dirección <code>{{ request.path }}</code> no corresponde a ninguna página o el registro solicitado ya no existe.</p>
+  <div class="fila" style="justify-content:center;">
+    <a class="btn" href="{% url 'home' %}">Ir al inicio</a>
+    <a class="btn sec" href="{% url 'web:catalogo' %}">Ver catálogo</a>
+  </div>
+</div>
+{% endblock %}

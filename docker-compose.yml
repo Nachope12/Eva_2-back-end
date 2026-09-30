@@ -1,0 +1,15 @@
+# PostgreSQL local listo para usar: `docker compose up -d`
+services:
+  db:
+    image: postgres:16
+    container_name: tienda_hardware_db
+    environment:
+      POSTGRES_DB: tienda_hardware_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "12345"
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

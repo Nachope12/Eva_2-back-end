@@ -1,0 +1,11 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Ingresar · TechHardware{% endblock %}
+{% block contenido %}
+<h1>Ingresar</h1>
+<form method="post" class="card" style="max-width:480px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Ingresar</button>
+  <p class="mut">¿Sin cuenta? <a href="{% url 'web:registro' %}">Regístrese</a></p>
+</form>
+{% endblock %}

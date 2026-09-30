@@ -1,0 +1,25 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Catálogo · TechHardware{% endblock %}
+{% block contenido %}
+<h1>Catálogo de componentes</h1>
+<form method="get" class="card filtros">
+  {{ filter.form.as_p }}
+  <button type="submit">Filtrar</button>
+  <a class="btn sec" href="{% url 'web:catalogo' %}">Limpiar</a>
+</form>
+<br>
+<div class="grid">
+  {% for p in object_list %}
+  <div class="card">
+    <span class="mut">{{ p.categoria.nombre }} · {{ p.marca }}</span>
+    <h3 style="margin:.3rem 0;"><a href="{% url 'web:catalogo_detalle' p.pk %}">{{ p.nombre }}</a></h3>
+    <p style="font-size:1.25rem; margin:.3rem 0;"><strong>${{ p.precio|floatformat:0 }}</strong></p>
+    <p class="mut">SKU {{ p.sku }} · {% if p.stock %}Stock: {{ p.stock }}{% else %}<span style="color:var(--rojo)">Agotado</span>{% endif %}</p>
+    <a class="btn" href="{% url 'web:catalogo_detalle' p.pk %}">Ver detalle</a>
+  </div>
+  {% empty %}
+  <p class="mut">No hay productos que coincidan con los filtros.</p>
+  {% endfor %}
+</div>
+{% include "tienda/_paginacion.html" %}
+{% endblock %}

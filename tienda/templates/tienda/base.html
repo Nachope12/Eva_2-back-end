@@ -1,0 +1,198 @@
+{# Plantilla base: header de tienda (barra de cuenta + barra de categorías), mensajes flash y FOOTER con los datos del alumno. #}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}TechHardware{% endblock %}</title>
+  <style>
+    :root {
+      /* Paleta clara verde: marca en verde bosque, acento lima, fondo gris muy claro.
+         --exito se usa aparte de --primario para que los botones "confirmar/pagar" (verdes)
+         se distingan de la marca (también verde) usando un verde-azulado (teal). */
+      --bg:#030712; --card:rgba(17,24,39,.65); --borde:rgba(255,255,255,.09); --txt:#f1f5f9; --mut:#94a3b8;
+      --marca:#030712; --primario:#0891b2; --primario-osc:#0e7490; --acento:#22d3ee; --violeta:#8b5cf6; --esmeralda:#10b981;
+      --exito:#10b981; --rojo:#dc2626; --amar:#d97706;
+      --sombra: 0 1px 2px rgba(14,61,36,.08), 0 1px 1px rgba(14,61,36,.05);
+    }
+    * { box-sizing:border-box; }
+    body { font-family:"Inter","Segoe UI",system-ui,sans-serif; margin:0; display:flex; flex-direction:column; min-height:100vh; background:var(--bg); color:var(--txt); }
+    a { color:#22d3ee; text-decoration:none; } a:hover { text-decoration:underline; }
+
+    /* ---- Barra superior: marca, cuenta, carrito ---- */
+    .barra-cuenta { position:sticky; top:0; z-index:50; background:rgba(17,24,39,.75); backdrop-filter:blur(16px); border-bottom:1px solid var(--borde); color:#e6edf7; }
+    .barra-cuenta .contenido { max-width:1150px; margin:0 auto; padding:.7rem 1.2rem; display:flex; align-items:center; gap:1.2rem; }
+    .marca { display:flex; align-items:center; gap:.6rem; font-size:1.35rem; font-weight:800; color:#fff; letter-spacing:.08em; }
+    .logo-ico { width:36px; height:36px; border-radius:10px; padding:2px; background:linear-gradient(135deg,#06b6d4,#8b5cf6,#34d399); } .logo-ico span { display:flex; width:100%; height:100%; border-radius:8px; background:#030712; align-items:center; justify-content:center; }
+    .marca span { color:var(--acento); }
+    .barra-cuenta .sp { flex:1; }
+    .barra-cuenta a, .barra-cuenta .cuenta { color:#dce7fa; font-size:.92rem; }
+    .barra-cuenta a:hover { color:#fff; text-decoration:none; }
+    .cuenta-caja { text-align:right; line-height:1.15; }
+    .cuenta-caja small { display:block; color:#94a3b8; }
+    .carrito { position:relative; display:flex; align-items:center; gap:.3rem; color:#fff !important; font-weight:600; }
+    .carrito .globo { position:absolute; top:-8px; right:-12px; background:var(--acento); color:#00251f; font-size:.7rem; font-weight:800; border-radius:99px; padding:1px 6px; }
+    .barra-cuenta button.sec { background:transparent; border:1px solid #3b537a; color:#e6edf7; }
+    .barra-cuenta button.sec:hover { background:#16305a; }
+
+    /* ---- Barra de categorías (el "menú" tipo Falabella, con línea de acento) ---- */
+    .barra-categorias { position:relative; z-index:40; background:rgba(11,15,25,.85); border-bottom:1px solid var(--borde); }
+    .barra-categorias .contenido { max-width:1150px; margin:0 auto; padding:.55rem 1.2rem; display:flex; flex-wrap:wrap; gap:1.4rem; align-items:center; }
+    .barra-categorias a { color:#cbd5e1; font-weight:600; font-size:.95rem; }
+    .barra-categorias a:hover { color:#22d3ee; text-decoration:none; }
+    .barra-categorias .sp { flex:1; }
+    .barra-categorias .rol-actual { font-size:.82rem; }
+
+    main { flex:1; width:100%; max-width:1150px; margin:0 auto; padding:1.5rem 1.2rem; }
+    h1 { margin-top:0; color:#fff; }
+    code { background:#111827; padding:2px 6px; border-radius:4px; }
+
+    table { border-collapse:collapse; width:100%; margin:1rem 0; background:var(--card); box-shadow:var(--sombra); border-radius:12px; overflow:hidden; }
+    th, td { border-bottom:1px solid var(--borde); padding:10px 12px; text-align:left; vertical-align:middle; }
+    th { background:rgba(255,255,255,.05); color:#94a3b8; text-transform:uppercase; font-size:.78rem; letter-spacing:.03em; }
+    tr:last-child td { border-bottom:none; }
+
+    .card { background:var(--card); backdrop-filter:blur(16px); border:1px solid var(--borde); border-radius:16px; padding:1rem; box-shadow:var(--sombra); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:1.1rem; }
+    .grid .card { display:flex; flex-direction:column; gap:.25rem; transition:transform .12s, box-shadow .12s; }
+    .grid .card:hover { transform:translateY(-3px); box-shadow:0 0 25px -5px rgba(6,182,212,.25); border-color:rgba(6,182,212,.35); }
+
+    .btn, button { display:inline-block; background:linear-gradient(90deg,#06b6d4,#7c3aed); color:#fff; border:0; border-radius:12px; padding:.5rem 1rem; cursor:pointer; font-size:.92rem; font-weight:700; }
+    .btn:hover, button:hover { filter:brightness(1.12); text-decoration:none; }
+    .btn.sec, button.sec { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#e2e8f0; }
+    .btn.sec:hover, button.sec:hover { background:rgba(255,255,255,.13); filter:none; }
+    .btn.peli, button.peli { background:var(--rojo); color:#fff; border:0; }
+    .btn.peli:hover, button.peli:hover { background:#b91c1c; filter:none; }
+    .btn.ok, button.ok { background:var(--exito); color:#fff; border:0; }
+    .btn.ok:hover, button.ok:hover { background:#059669; filter:none; }
+    .link { background:none; color:#22d3ee; padding:0; font-weight:400; }
+
+    input, select, textarea { background:#0f172a; color:var(--txt); border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:.45rem .55rem; width:100%; max-width:420px; font:inherit; }
+    input[type=checkbox] { width:auto; } input[type=number].peq { width:80px; }
+    form p { margin:.7rem 0; } form label { display:block; margin-bottom:.25rem; color:var(--mut); font-weight:600; font-size:.9rem; }
+    .errorlist { color:var(--rojo); list-style:none; padding:0; margin:.2rem 0; font-size:.85rem; }
+
+    .filtros { display:flex; flex-wrap:wrap; gap:.6rem 1rem; align-items:flex-end; }
+    .filtros p { margin:0; } .filtros input, .filtros select { max-width:170px; }
+
+    .msg { padding:.7rem 1rem; border-radius:12px; margin-bottom:.6rem; border-left:5px solid; background:rgba(17,24,39,.85); box-shadow:var(--sombra); }
+    .msg.success { border-color:var(--exito); } .msg.error { border-color:var(--rojo); }
+    .msg.warning { border-color:var(--amar); } .msg.info { border-color:var(--primario); }
+
+    .badge { padding:2px 10px; border-radius:99px; font-size:.78rem; font-weight:800; }
+    .PENDIENTE { background:rgba(245,158,11,.15); color:#fbbf24; } .PAGADO { background:rgba(59,130,246,.15); color:#93c5fd; }
+    .ENTREGADO { background:rgba(16,185,129,.15); color:#6ee7b7; } .CANCELADO { background:rgba(239,68,68,.15); color:#fca5a5; }
+
+    .mut { color:var(--mut); } .der { text-align:right; }
+    .fila { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .pag { display:flex; gap:1rem; justify-content:center; margin:1rem 0; }
+
+    /* ---- Opiniones: inicial dentro de un recuadro cuadrado ---- */
+    .estrellas { color:var(--amar); letter-spacing:2px; }
+    .autor { display:flex; align-items:center; gap:.75rem; margin-top:auto; padding-top:.8rem; border-top:1px solid var(--borde); font-size:.9rem; line-height:1.3; }
+    .avatar-cuadro { width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:6px; font-size:.85rem; font-weight:800; letter-spacing:.05em; line-height:1; border:1px solid; }
+    .av-1 { background:rgba(6,182,212,.2); color:#22d3ee; border-color:rgba(6,182,212,.4); }
+    .av-2 { background:rgba(139,92,246,.2); color:#a78bfa; border-color:rgba(139,92,246,.4); }
+    .av-3 { background:rgba(16,185,129,.2); color:#34d399; border-color:rgba(16,185,129,.4); }
+
+    /* ---- Portada estilo NEXUS ---- */
+    main, .barra-categorias { position:relative; z-index:1; }
+    #bg-canvas { position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:.4; }
+    .hero { text-align:center; padding:3rem 0 2rem; position:relative; }
+    .hero::before { content:""; position:absolute; left:50%; top:30%; width:600px; max-width:100%; height:320px; transform:translate(-50%,-50%); background:linear-gradient(135deg,rgba(6,182,212,.22),rgba(124,58,237,.2),rgba(236,72,153,.1)); filter:blur(110px); border-radius:50%; pointer-events:none; }
+    .hero > * { position:relative; }
+    .pildora { display:inline-flex; align-items:center; gap:.5rem; padding:.45rem 1rem; border-radius:99px; border:1px solid rgba(6,182,212,.3); background:rgba(17,24,39,.65); color:#67e8f9; font-size:.85rem; font-weight:500; }
+    .pildora i { width:8px; height:8px; border-radius:50%; background:#22d3ee; animation:pulso 2s infinite; }
+    @keyframes pulso { 50% { opacity:.3; } }
+    .hero h1 { font-size:clamp(2rem,5vw,3.6rem); font-weight:800; line-height:1.1; margin:1.3rem 0 1rem; }
+    .grad { background:linear-gradient(90deg,#22d3ee,#a78bfa,#34d399); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .hero p.sub { color:#94a3b8; font-size:1.15rem; max-width:640px; margin:0 auto 1.6rem; line-height:1.6; }
+    .hero .fila { justify-content:center; gap:1rem; }
+    .btn.grande { padding:.9rem 2rem; font-size:1rem; box-shadow:0 10px 25px -8px rgba(6,182,212,.5); }
+    .datos { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; max-width:760px; margin:2.5rem auto 0; text-align:left; }
+    .datos .card b { display:block; font-size:1.4rem; margin-bottom:.15rem; }
+    .c1 { color:#22d3ee; } .c2 { color:#a78bfa; } .c3 { color:#34d399; } .c4 { color:#fbbf24; }
+    .seccion-titulo { text-align:center; margin:3rem 0 1.2rem; }
+    .seccion-titulo h2 { font-size:1.9rem; margin:0 0 .4rem; color:#fff; }
+    .grid.opiniones, .grid.tres { grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); }
+    .icono-caja { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; margin-bottom:.5rem; border:1px solid; }
+
+    footer { position:relative; z-index:1; background:rgba(11,15,25,.9); border-top:1px solid var(--borde); color:#94a3b8; text-align:center; padding:1rem; font-size:.85rem; }
+    footer strong { color:#fff; }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  {# ---- Barra superior: marca + cuenta + carrito ---- #}
+  <div class="barra-cuenta">
+    <div class="contenido">
+      <a class="marca" href="{% url 'home' %}"><span class="logo-ico"><span>💻</span></span><b>TECH<span style="color:var(--acento)">.</span>HARDWARE</b></a>
+      <span class="sp"></span>
+      {% if user.is_authenticated %}
+        <div class="cuenta-caja">
+          <small>Hola, {{ user.username }}</small>
+          <strong>{{ rol_actual|default:"—"|title }}</strong>
+        </div>
+        <form method="post" action="{% url 'web:logout' %}">{% csrf_token %}<button class="sec" type="submit">Salir</button></form>
+      {% else %}
+        <a href="{% url 'web:login' %}">Hola, <strong>inicia sesión</strong></a>
+        <a href="{% url 'web:registro' %}">Crear cuenta</a>
+      {% endif %}
+      {% if es_cliente %}
+        <a class="carrito" href="{% url 'web:carro' %}">
+          🛒 Mi carro
+          {% if carrito_cantidad %}<span class="globo">{{ carrito_cantidad }}</span>{% endif %}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ---- Barra de categorías: navegación según el rol ---- #}
+  <div class="barra-categorias">
+    <div class="contenido">
+      <a href="{% url 'web:catalogo' %}">Catálogo</a>
+      {% if es_cliente %}
+        <a href="{% url 'web:mis_ordenes' %}">Mis órdenes</a>
+      {% endif %}
+      {% if es_personal %}
+        <a href="{% url 'web:categoria_lista' %}">Categorías</a>
+        <a href="{% url 'web:producto_lista' %}">Productos</a>
+        <a href="{% url 'web:panel_ordenes' %}">Órdenes</a>
+      {% endif %}
+      {% if es_super %}
+        <a href="{% url 'web:usuario_lista' %}">Usuarios</a>
+      {% endif %}
+      <span class="sp"></span>
+      {% if es_personal %}
+        {# Solo ADMINISTRADOR y SUPERADMIN ven y pueden entrar a la documentación de la API. #}
+        <a href="/api/docs/" class="mut">API / Swagger</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <main>
+    {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer>{{ alumno_nombre }} &middot; {{ alumno_seccion }} &middot; {{ alumno_anio }}</footer>
+  <script>
+    (function () {
+      var c = document.getElementById('bg-canvas'), x = c.getContext('2d'), ps = [];
+      function size() { c.width = innerWidth; c.height = innerHeight; }
+      addEventListener('resize', size); size();
+      for (var i = 0; i < 60; i++) ps.push({ x: Math.random()*c.width, y: Math.random()*c.height, vx: (Math.random()-.5)*.4, vy: (Math.random()-.5)*.4, r: Math.random()*1.5+.5, a: Math.random()*.5+.2 });
+      (function loop() {
+        x.clearRect(0, 0, c.width, c.height);
+        ps.forEach(function (p) {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > c.width) p.vx *= -1;
+          if (p.y < 0 || p.y > c.height) p.vy *= -1;
+          x.beginPath(); x.arc(p.x, p.y, p.r, 0, 6.2832); x.fillStyle = 'rgba(6,182,212,' + p.a + ')'; x.fill();
+        });
+        requestAnimationFrame(loop);
+      })();
+    })();
+  </script>
+</body>
+</html>

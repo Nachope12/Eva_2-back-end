@@ -1,0 +1,15 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Categorías · TechHardware{% endblock %}
+{% block contenido %}
+<div class="fila" style="justify-content:space-between;"><h1>Categorías</h1><a class="btn ok" href="{% url 'web:categoria_crear' %}">+ Nueva categoría</a></div>
+<table>
+  <tr><th>Nombre</th><th>Descripción</th><th>Productos</th><th></th></tr>
+  {% for c in object_list %}
+  <tr>
+    <td>{{ c.nombre }}</td><td class="mut">{{ c.descripcion|default:"—" }}</td><td>{{ c.total_productos }}</td>
+    <td class="fila"><a class="btn sec" href="{% url 'web:categoria_editar' c.pk %}">Editar</a>{% if es_super %}<a class="btn peli" href="{% url 'web:categoria_eliminar' c.pk %}">Eliminar</a>{% endif %}</td>
+  </tr>
+  {% empty %}<tr><td colspan="4" class="mut">No hay categorías registradas.</td></tr>{% endfor %}
+</table>
+{% include "tienda/_paginacion.html" %}
+{% endblock %}

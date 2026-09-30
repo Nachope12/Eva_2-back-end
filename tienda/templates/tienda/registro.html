@@ -1,0 +1,10 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Registro · TechHardware{% endblock %}
+{% block contenido %}
+<h1>Crear cuenta de cliente</h1>
+<form method="post" class="card" style="max-width:480px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Registrarme</button>
+</form>
+{% endblock %}

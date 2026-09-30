@@ -1,0 +1,27 @@
+{% extends "tienda/base.html" %}
+{# Listado de órdenes: sirve para "Mis órdenes" (cliente) y "Órdenes" (administrador). #}
+{% block titulo %}Órdenes · TechHardware{% endblock %}
+{% block contenido %}
+<h1>{% if es_panel %}Todas las órdenes{% else %}Mis órdenes{% endif %}</h1>
+<form method="get" class="card filtros">
+  {{ filter.form.as_p }}
+  <button type="submit">Filtrar</button>
+  <a class="btn sec" href="{% if es_panel %}{% url 'web:panel_ordenes' %}{% else %}{% url 'web:mis_ordenes' %}{% endif %}">Limpiar</a>
+</form>
+<table>
+  <tr><th>N°</th>{% if es_panel %}<th>Cliente</th>{% endif %}<th>Fecha</th><th>Estado</th><th>Total</th><th></th></tr>
+  {% for o in object_list %}
+  <tr>
+    <td>#{{ o.pk }}</td>
+    {% if es_panel %}<td>{{ o.usuario.username }}</td>{% endif %}
+    <td>{{ o.creada|date:"d/m/Y H:i" }}</td>
+    <td><span class="badge {{ o.estado }}">{{ o.get_estado_display }}</span></td>
+    <td>${{ o.total|floatformat:0 }}</td>
+    <td><a class="btn sec" href="{% if es_panel %}{% url 'web:panel_orden_detalle' o.pk %}{% else %}{% url 'web:mis_ordenes_detalle' o.pk %}{% endif %}">Ver</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6" class="mut">No hay órdenes.</td></tr>
+  {% endfor %}
+</table>
+{% include "tienda/_paginacion.html" %}
+{% endblock %}

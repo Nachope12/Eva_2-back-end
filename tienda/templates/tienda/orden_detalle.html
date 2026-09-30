@@ -1,0 +1,35 @@
+{% extends "tienda/base.html" %}
+{# Detalle de orden con precios congelados. Cliente: botón pagar. Administrador: cambio de estado. #}
+{% block titulo %}Orden #{{ object.pk }} · TechHardware{% endblock %}
+{% block contenido %}
+<p><a href="{% if es_panel %}{% url 'web:panel_ordenes' %}{% else %}{% url 'web:mis_ordenes' %}{% endif %}">« Volver</a></p>
+<h1>Orden #{{ object.pk }} <span class="badge {{ object.estado }}">{{ object.get_estado_display }}</span></h1>
+<p class="mut">Cliente: {{ object.usuario.username }} · Creada: {{ object.creada|date:"d/m/Y H:i" }} · Stock descontado: {{ object.stock_descontado|yesno:"sí,no" }}</p>
+<table>
+  <tr><th>Producto</th><th>Cantidad</th><th>Precio congelado</th><th>Subtotal</th></tr>
+  {% for it in object.items.all %}
+  <tr><td>{{ it.producto.nombre }}<br><span class="mut">{{ it.producto.sku }}</span></td><td>{{ it.cantidad }}</td><td>${{ it.precio_unitario|floatformat:0 }}</td><td>${{ it.subtotal|floatformat:0 }}</td></tr>
+  {% endfor %}
+  <tr><td colspan="3" class="der"><strong>Total</strong></td><td><strong>${{ object.total|floatformat:0 }}</strong></td></tr>
+</table>
+
+{% if not es_panel and object.estado == "PENDIENTE" %}
+<form method="post" action="{% url 'web:mis_ordenes_pagar' object.pk %}">{% csrf_token %}<button class="ok" type="submit">Pagar orden</button></form>
+{% endif %}
+
+{% if es_panel %}
+  {% if transiciones %}
+  <form method="post" action="{% url 'web:panel_orden_estado' object.pk %}" class="card fila">
+    {% csrf_token %}
+    <label for="estado">Cambiar estado a:</label>
+    <select name="estado" id="estado" style="max-width:200px;">
+      {% for valor, etiqueta in transiciones %}<option value="{{ valor }}">{{ etiqueta }}</option>{% endfor %}
+    </select>
+    <button type="submit">Aplicar</button>
+    <span class="mut">PAGADO descuenta stock · CANCELADO repone stock</span>
+  </form>
+  {% else %}
+  <p class="mut">Esta orden está en un estado final; no admite más cambios.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

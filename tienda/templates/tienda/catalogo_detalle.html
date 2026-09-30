@@ -1,0 +1,21 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}{{ object.nombre }} · TechHardware{% endblock %}
+{% block contenido %}
+<p><a href="{% url 'web:catalogo' %}">« Volver al catálogo</a></p>
+<div class="card">
+  <span class="mut">{{ object.categoria.nombre }} · {{ object.marca }} · SKU {{ object.sku }}</span>
+  <h1>{{ object.nombre }}</h1>
+  <p>{{ object.descripcion|default:"Sin descripción." }}</p>
+  <p style="font-size:1.6rem;"><strong>${{ object.precio|floatformat:0 }}</strong></p>
+  <p class="mut">{% if object.stock %}Stock disponible: {{ object.stock }}{% else %}Agotado{% endif %}</p>
+  {% if es_cliente %}
+  <form method="post" action="{% url 'web:carro_agregar' object.pk %}" class="fila">
+    {% csrf_token %}
+    <input type="number" name="cantidad" value="1" min="1" class="peq">
+    <button type="submit" class="ok">Agregar al carro</button>
+  </form>
+  {% elif not user.is_authenticated %}
+  <a class="btn" href="{% url 'web:login' %}?next={{ request.path }}">Ingrese para comprar</a>
+  {% endif %}
+</div>
+{% endblock %}

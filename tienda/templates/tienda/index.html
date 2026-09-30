@@ -1,0 +1,110 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Inicio · TechHardware{% endblock %}
+{% block contenido %}
+
+{% if es_cliente %}
+  {# ------------------------- DASHBOARD DEL CLIENTE ------------------------- #}
+  {# El cliente NUNCA ve aquí nada de la API/Swagger: esa sección es solo para el personal. #}
+  <h1>Hola, {{ user.username }} 👋</h1>
+  <p class="mut">Este es tu panel: revisa tu carro y tus compras, o sigue explorando el catálogo.</p>
+
+  <div class="grid">
+    <div class="card">
+      <span class="mut">Mi carro</span>
+      <h2 style="margin:.2rem 0;">
+        {% if carro_items %}{{ carro_items }} producto{{ carro_items|pluralize }}{% else %}Vacío{% endif %}
+      </h2>
+      {% if carro_items %}<p>Total acumulado: <strong>${{ carro_total|floatformat:0 }}</strong></p>{% endif %}
+      <a class="btn" href="{% url 'web:carro' %}">Ir a mi carro</a>
+    </div>
+
+    <div class="card">
+      <span class="mut">Mis órdenes</span>
+      <h2 style="margin:.2rem 0;">{{ ordenes_totales }} en total</h2>
+      <p>{% if ordenes_pendientes %}{{ ordenes_pendientes }} pendiente{{ ordenes_pendientes|pluralize }} de pago{% else %}Sin pagos pendientes{% endif %}</p>
+      <a class="btn sec" href="{% url 'web:mis_ordenes' %}">Ver mis órdenes</a>
+    </div>
+
+    <div class="card">
+      <span class="mut">Catálogo</span>
+      <h2 style="margin:.2rem 0;">Componentes PC</h2>
+      <p>Procesadores, tarjetas de video, RAM, almacenamiento y más.</p>
+      <a class="btn sec" href="{% url 'web:catalogo' %}">Ver catálogo</a>
+    </div>
+  </div>
+
+  {% include "tienda/_opiniones.html" %}
+
+{% elif es_personal %}
+  {# --------------------- DASHBOARD DE ADMINISTRADOR / SUPERADMIN --------------------- #}
+  <h1>Panel de gestión</h1>
+  <p class="mut">Sesión de <strong>{{ user.username }}</strong> · rol {{ rol_actual|title }}.</p>
+
+  <div class="grid">
+    <div class="card">
+      <span class="mut">Catálogo activo</span>
+      <h2 style="margin:.2rem 0;">{{ total_productos }} producto{{ total_productos|pluralize }}</h2>
+      <p>{{ total_categorias }} categoría{{ total_categorias|pluralize }}</p>
+      <a class="btn sec" href="{% url 'web:producto_lista' %}">Gestionar productos</a>
+    </div>
+
+    <div class="card">
+      <span class="mut">Órdenes</span>
+      <h2 style="margin:.2rem 0;">{{ ordenes_pendientes }} pendiente{{ ordenes_pendientes|pluralize }}</h2>
+      <p>Esperando pago o revisión.</p>
+      <a class="btn sec" href="{% url 'web:panel_ordenes' %}">Ver órdenes</a>
+    </div>
+
+    <div class="card">
+      <span class="mut">Stock bajo</span>
+      <h2 style="margin:.2rem 0; {% if stock_bajo %}color:var(--rojo);{% endif %}">{{ stock_bajo }} producto{{ stock_bajo|pluralize }}</h2>
+      <p>Con 5 unidades o menos.</p>
+      <a class="btn sec" href="{% url 'web:producto_lista' %}">Revisar inventario</a>
+    </div>
+
+    {% if es_super %}
+    <div class="card">
+      <span class="mut">Usuarios</span>
+      <h2 style="margin:.2rem 0;">Roles del sistema</h2>
+      <p>Crear, editar o desactivar cuentas.</p>
+      <a class="btn sec" href="{% url 'web:usuario_lista' %}">Gestionar usuarios</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <h2>API REST</h2>
+  <p class="mut">Endpoints JWT documentados en <a href="/api/docs/">/api/docs/</a> (solo visible para Administrador y Super Administrador).</p>
+
+{% else %}
+  {# --------------------- PORTADA PÚBLICA (visitante sin sesión), estilo NEXUS --------------------- #}
+  <section class="hero">
+    <span class="pildora"><i></i> Tienda de hardware de nueva generación</span>
+    <h1>Componentes de vanguardia para <br><span class="grad">tu próximo equipo</span></h1>
+    <p class="sub">Procesadores, tarjetas de video, memoria RAM y almacenamiento con stock real, precios claros y compra segura.</p>
+    <div class="fila">
+      <a class="btn grande" href="{% url 'web:catalogo' %}">Ver catálogo →</a>
+      <a class="btn sec grande" href="{% url 'web:registro' %}">Crear cuenta</a>
+    </div>
+    <div class="datos">
+      <div class="card"><b class="c1">+500</b><span class="mut">Productos</span></div>
+      <div class="card"><b class="c2">24/7</b><span class="mut">Soporte técnico</span></div>
+      <div class="card"><b class="c3">48 h</b><span class="mut">Despacho</span></div>
+      <div class="card"><b class="c4">100%</b><span class="mut">Compra segura</span></div>
+    </div>
+  </section>
+
+  <div class="seccion-titulo"><h2>Todo para armar tu PC</h2><p class="mut">Explora las categorías más buscadas.</p></div>
+  <div class="grid tres">
+    <div class="card"><div class="icono-caja" style="background:rgba(6,182,212,.15);border-color:rgba(6,182,212,.4)">🧠</div><h3 style="margin:.2rem 0">Procesadores</h3><p class="mut">Rendimiento para trabajo, estudio y gaming.</p><a href="{% url 'web:catalogo' %}">Ver productos →</a></div>
+    <div class="card"><div class="icono-caja" style="background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.4)">🎮</div><h3 style="margin:.2rem 0">Tarjetas de video</h3><p class="mut">Gráficos potentes para cada presupuesto.</p><a href="{% url 'web:catalogo' %}">Ver productos →</a></div>
+    <div class="card"><div class="icono-caja" style="background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4)">💾</div><h3 style="margin:.2rem 0">RAM y almacenamiento</h3><p class="mut">SSD, NVMe y memoria de alta velocidad.</p><a href="{% url 'web:catalogo' %}">Ver productos →</a></div>
+  </div>
+
+  {% include "tienda/_opiniones.html" %}
+
+  <div class="seccion-titulo"><h2>¿Listo para comprar?</h2><p class="mut">Inicia sesión o crea tu cuenta en segundos.</p>
+    <div class="fila" style="justify-content:center"><a class="btn" href="{% url 'web:login' %}">Ingresar</a><a class="btn sec" href="{% url 'web:registro' %}">Regístrate</a></div>
+  </div>
+{% endif %}
+
+{% endblock %}

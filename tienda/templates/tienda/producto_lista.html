@@ -1,0 +1,21 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Productos · TechHardware{% endblock %}
+{% block contenido %}
+<div class="fila" style="justify-content:space-between;"><h1>Productos</h1><a class="btn ok" href="{% url 'web:producto_crear' %}">+ Nuevo producto</a></div>
+<form method="get" class="card filtros">
+  {{ filter.form.as_p }}
+  <button type="submit">Filtrar</button>
+  <a class="btn sec" href="{% url 'web:producto_lista' %}">Limpiar</a>
+</form>
+<table>
+  <tr><th>SKU</th><th>Nombre</th><th>Categoría</th><th>Marca</th><th>Precio</th><th>Stock</th><th>Activo</th><th></th></tr>
+  {% for p in object_list %}
+  <tr>
+    <td>{{ p.sku }}</td><td>{{ p.nombre }}</td><td>{{ p.categoria.nombre }}</td><td>{{ p.marca }}</td>
+    <td>${{ p.precio|floatformat:0 }}</td><td>{{ p.stock }}</td><td>{{ p.activo|yesno:"Sí,No" }}</td>
+    <td class="fila"><a class="btn sec" href="{% url 'web:producto_editar' p.pk %}">Editar</a>{% if es_super %}<a class="btn peli" href="{% url 'web:producto_eliminar' p.pk %}">Eliminar</a>{% endif %}</td>
+  </tr>
+  {% empty %}<tr><td colspan="8" class="mut">No hay productos.</td></tr>{% endfor %}
+</table>
+{% include "tienda/_paginacion.html" %}
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "tienda/base.html" %}
+{% block titulo %}Mi carro · TechHardware{% endblock %}
+{% block contenido %}
+<h1>Mi carro</h1>
+<p class="mut">Su carro se guarda en la base de datos: sus productos siguen aquí aunque cierre sesión o cambie de dispositivo.</p>
+{% if items %}
+<table>
+  <tr><th>Producto</th><th>Precio</th><th>Cantidad</th><th>Subtotal</th><th></th></tr>
+  {% for it in items %}
+  <tr>
+    <td><a href="{% url 'web:catalogo_detalle' it.producto.pk %}">{{ it.producto.nombre }}</a><br><span class="mut">{{ it.producto.sku }}</span></td>
+    <td>${{ it.producto.precio|floatformat:0 }}</td>
+    <td>
+      <form method="post" action="{% url 'web:carro_actualizar' it.pk %}" class="fila">
+        {% csrf_token %}
+        <input type="number" name="cantidad" value="{{ it.cantidad }}" min="1" class="peq">
+        <button type="submit" class="sec btn">Actualizar</button>
+      </form>
+    </td>
+    <td>${{ it.subtotal|floatformat:0 }}</td>
+    <td>
+      <form method="post" action="{% url 'web:carro_eliminar' it.pk %}">{% csrf_token %}<button class="peli" type="submit">Quitar</button></form>
+    </td>
+  </tr>
+  {% endfor %}
+  <tr><td colspan="3" class="der"><strong>Total</strong></td><td colspan="2"><strong>${{ total|floatformat:0 }}</strong></td></tr>
+</table>
+<div class="fila">
+  <form method="post" action="{% url 'web:checkout' %}">{% csrf_token %}<input type="hidden" name="modo" value="comprar"><button class="ok" type="submit">Comprar ahora</button></form>
+  <form method="post" action="{% url 'web:checkout' %}">{% csrf_token %}<input type="hidden" name="modo" value="pendiente"><button class="sec btn" type="submit">Generar orden pendiente</button></form>
+  <form method="post" action="{% url 'web:carro_vaciar' %}">{% csrf_token %}<button class="peli" type="submit">Vaciar carro</button></form>
+</div>
+<p class="mut">«Comprar ahora» valida y descuenta el inventario al instante. «Generar orden pendiente» solo congela los precios; el inventario se actualiza recién cuando se pague.</p>
+{% else %}
+<div class="card">Su carro está vacío. <a href="{% url 'web:catalogo' %}">Explorar el catálogo</a></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "tienda/base.html" %}
+{# Formulario genérico de crear / editar (Categoría y Producto). #}
+{% block titulo %}{{ titulo }} · TechHardware{% endblock %}
+{% block contenido %}
+<h1>{{ titulo }}</h1>
+<form method="post" class="card" style="max-width:560px;">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <div class="fila"><button type="submit" class="ok">Guardar</button><a class="btn sec" href="{{ volver }}">Cancelar</a></div>
+</form>
+{% endblock %}

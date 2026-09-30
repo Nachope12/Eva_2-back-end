@@ -1,0 +1,11 @@
+{% extends "tienda/base.html" %}
+{# Confirmación genérica de eliminación. #}
+{% block titulo %}Eliminar · TechHardware{% endblock %}
+{% block contenido %}
+<h1>Eliminar</h1>
+<form method="post" class="card" style="max-width:560px; border-left:6px solid var(--rojo);">
+  {% csrf_token %}
+  <p>¿Está seguro de eliminar <strong>{{ object }}</strong>? Esta acción no se puede deshacer.</p>
+  <div class="fila"><button type="submit" class="peli">Sí, eliminar</button><a class="btn sec" href="{{ volver }}">Cancelar</a></div>
+</form>
+{% endblock %}
